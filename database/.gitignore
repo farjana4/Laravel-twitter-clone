@@ -1,2 +1,13 @@
-*.sqlite
-*.sqlite-journal
+/.idea
+/.idea/*.xml
+/node_modules
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.php_cs.cache
+.phpunit.result.cache
+npm-debug.log
+yarn-error.log

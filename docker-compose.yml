@@ -1,0 +1,69 @@
+version: "3.7"
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: twitter-lar-nginx
+    restart: unless-stopped
+    ports:
+      - 8080:80
+      - 443:443
+    volumes:
+      - ./:/var/www/html:cached
+      - ./.docker/nginx:/etc/nginx/conf.d
+      - ./.docker/nginx/ssl:/etc/nginx/conf.d/ssl
+    networks:
+      - twitter-network
+    depends_on:
+      - app
+
+  app:
+    build:
+      context: ./.docker/app
+      dockerfile: Dockerfile
+    container_name: twitter-lar-php
+    restart: unless-stopped
+    working_dir: /var/www/html
+    environment:
+      STARTUP_COMMAND_1: sudo chown docker /proc/self/fd/{1,2}
+    volumes:
+      - ./:/var/www/html:cached
+      - ./.docker/app/php-fpm.ini:/usr/local/etc/php/conf.d/99-app.ini
+      - ~/.ssh:/root/.ssh
+    networks:
+      - twitter-network
+    depends_on:
+      - mariadb
+      - redis
+
+  mariadb:
+    image: mariadb:10.5.9
+    container_name: twitter-lar-mariadb
+    restart: unless-stopped
+    ports:
+      - 33060:3306
+    volumes:
+      - twitter-volume:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=twitter
+      - MYSQL_PASSWORD=twitter
+      - MYSQL_DATABASE=twitter
+    networks:
+      - twitter-network
+
+  redis:
+    image: redis:alpine
+    container_name: twitter-lar-redis
+    volumes:
+      - twitter-volume:/data
+    networks:
+      - twitter-network
+
+networks:
+  twitter-network:
+    driver: bridge
+
+volumes:
+  twitter-volume:
+    driver: local

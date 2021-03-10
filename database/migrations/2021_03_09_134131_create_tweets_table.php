@@ -15,7 +15,9 @@ class CreateTweetsTable extends Migration
     {
         Schema::create('tweets', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->unsignedBigInteger('user_id');
+            $table->string('body');
+            $table->timestamp('created_at');
         });
     }
 

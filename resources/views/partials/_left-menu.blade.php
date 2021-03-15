@@ -135,7 +135,7 @@
             </a>
         </div>
         <div>
-            <a href="/login.html">
+            <a href="{{ route('logout') }}">
                 <button
                     class="bg-blue-400 focus:outline-none font-medium hover:bg-blue-600 mt-5 px-4 py-2 rounded-full text-white w-48"
                 >
@@ -147,7 +147,7 @@
 
     @guest()
         <div>
-            <a href="/login.html">
+            <a href="{{ route('register') }}">
                 <button
                     class="bg-blue-400 focus:outline-none font-medium hover:bg-blue-600 mt-5 px-4 py-2 rounded-full text-white w-48"
                 >
@@ -156,11 +156,11 @@
             </a>
         </div>
         <div>
-            <a href="/login.html">
+            <a href="{{ route('login') }}">
                 <button
                     class="bg-blue-400 focus:outline-none font-medium hover:bg-blue-600 mt-5 px-4 py-2 rounded-full text-white w-48"
                 >
-                    Log IN
+                    Login
                 </button>
             </a>
         </div>

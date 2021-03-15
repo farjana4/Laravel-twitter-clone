@@ -26,12 +26,9 @@ Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('
 Route::post('/register', [AuthController::class, 'processRegistration'])->name('register');
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'processLogin']);
+Route::post('/login', [AuthController::class, 'processLogin'])->name('login');
 
-Route::get('email/verify', [VerificationController::class, 'show'])->name('verification.notice');
 //below route is using before login
-Route::get('email/verify/{hash}', [VerificationController::class, 'verify'])->name('verification.verify');
-//below route is using after login
-//Route::get('email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify');
+Route::get('email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify');
 
-//Route::post('email/resend', [VerificationController::class])->name('verification.resend');
+Route::get('/logout', [AuthController::class, 'logout'])->name('logout');

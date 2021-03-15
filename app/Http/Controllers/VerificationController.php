@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use Illuminate\Auth\Events\Verified;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class VerificationController extends Controller
@@ -12,49 +15,41 @@ class VerificationController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\View\View
      */
-    public function show(Request $request)
+    //need this method after login
+    /*public function show(Request $request)
     {
         return $request->user()->hasVerifiedEmail()
             ? redirect($this->redirectPath())
             : view('auth.verify');
-    }
+    }*/
 
-    /**
-     * Mark the authenticated user's email address as verified.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
-     *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     */
-    public function verify(Request $request)
+    public function verify(Request $request): RedirectResponse
     {
-        //using after login
+        $id = $request->route('id');
+        $hash = (string) $request->route('hash');
+        $user = User::findOrFail($id);
+        //using after login, checking user id
         /*if (! hash_equals((string) $request->route('id'), (string) $request->user()->getKey())) {
+            throw new AuthorizationException;
+        }
+        if (! hash_equals((string) $request->route('hash'), sha1($request->user()->getEmailForVerification()))) {
             throw new AuthorizationException;
         }*/
 
-        if (! hash_equals((string) $request->route('hash'), sha1($request->user()->getEmailForVerification()))) {
-            throw new AuthorizationException;
+        if (! hash_equals($hash, sha1($user->getEmailForVerification()))) {
+            $this->setErrorNotification('Invalid verification Link');
         }
-
-        if ($request->user()->hasVerifiedEmail()) {
-            return $request->wantsJson()
-                ? new JsonResponse([], 204)
-                : redirect($this->redirectPath());
+        //once time already verified but click on over the verification ling again
+        if ($user->hasVerifiedEmail()) {
+            return redirect()->route('login');
         }
-
-        if ($request->user()->markEmailAsVerified()) {
+        //Link is valid, now need to verify the user
+        if ($user->markEmailAsVerified()) {
             event(new Verified($request->user()));
         }
 
-        if ($response = $this->verified($request)) {
-            return $response;
-        }
+        $this->setSuccessNotification('User account verified.');
 
-        return $request->wantsJson()
-            ? new JsonResponse([], 204)
-            : redirect($this->redirectPath())->with('verified', true);
+        return redirect()->route('login');
     }
-
 }

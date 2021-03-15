@@ -41,7 +41,22 @@ php artisan migrate --seed
 bin/phpunit
 ```
 
+### Fix style
+composer fix-styles
+
+## If anything information need to load for new changes code then added by below command
+composer ide-generate
+
 #### Add necessarey dev dependencies
 . Install barryvdh/laravel-debugbar
 . Install barryvdh/laravel-ide-helper
 . Install matt-allan/laravel-code-style
+
+
+### Email configuration github link
+. https://github.com/laravel/ui/blob/3.x/src/AuthRouteMethods.php
+. https://github.com/laravel/ui/blob/3.x/auth-backend/VerifiesEmails.php
+
+### After sending email then run the comman manually
+php artisan queue:work
+

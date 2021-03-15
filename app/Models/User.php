@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\VerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -52,12 +53,22 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
     {
         try {
             $this->addMediaConversion('thumbnail')
-                ->width(64)
-                ->height(64)
-                ->sharpen(10);
+                ->width(128)
+                ->height(128)
+                ->sharpen(15);
         } catch (InvalidManipulation $e) {
             Log::error('User registerMediaConversions: '.$e->getMessage());    //set on laravel build in log
             //app('log')->error('User registerMediaConversions: ' . $e->getMessage());    //set on laravel build in log
         }
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new VerifyEmail);
+    }
+
+    public function getFullNameAttribute(): string
+    {
+        return $this->first_name.' '.$this->last_name;
     }
 }

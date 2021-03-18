@@ -60,3 +60,10 @@ composer ide-generate
 ### After sending email then run the comman manually
 php artisan queue:work
 
+### To check which languaage selected by cache/ config/app.php
+php artisan tinker
+>>> app()->getLocale();
+### Above problem resolve by cache clear
+php artisan cache:clear
+php artisan config:cache
+

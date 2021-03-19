@@ -22,6 +22,8 @@ Route::get('/', function () {
     return view('home');
 });
 
+Route::get('/lang/{locale}', [HomeController::class, 'setLocale'])->name('locale');
+
 Route::get('/home', [HomeController::class, 'showHome'])->name('home');
 
 Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');

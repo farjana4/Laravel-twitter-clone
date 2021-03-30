@@ -11,18 +11,20 @@ use App\Http\Requests\UpdateUsernameRequest;
 use App\Services\SettingsService;
 use Exception;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class SettingsController extends Controller
 {
     private SettingsService $settingsService;
 
-    public function __construct(SettingsService $settingsService){
+    public function __construct(SettingsService $settingsService)
+    {
         $this->settingsService = $settingsService;
     }
 
-    public function showSettingsForm(){
+    public function showSettingsForm()
+    {
         $data['user'] = auth()->user();
+
         return view('settings.settings', $data);
     }
 
@@ -40,7 +42,8 @@ class SettingsController extends Controller
         return redirect()->back();
     }
 
-    public function updateEmail(UpdateEmailRequest $request): RedirectResponse{
+    public function updateEmail(UpdateEmailRequest $request): RedirectResponse
+    {
         try {
             $this->settingsService->updateAttribute('email', $request->input('email'));
             event(new EmailUpdated());
@@ -53,9 +56,10 @@ class SettingsController extends Controller
         return redirect()->back();
     }
 
-    public function updatePhoneNumber(UpdatePhoneNumberRequest $request): RedirectResponse{
+    public function updatePhoneNumber(UpdatePhoneNumberRequest $request): RedirectResponse
+    {
         try {
-            $this->settingsService->updateAttribute('phone_number',$request->input('phone_number'));
+            $this->settingsService->updateAttribute('phone_number', $request->input('phone_number'));
             event(new PhoneNumberUpdated());
 
             $this->setSuccessNotification('Phone number updated Successfully');

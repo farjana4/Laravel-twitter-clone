@@ -49,7 +49,7 @@
         </form>
         <div class="items-center justify-between">
             <div class="flex justify-center space-x-4">
-                <a href="{{ route('register') }}"
+                <a href="{{ route('password.request') }}"
                     class="align-baseline border-b border-transparent capitalize font-bold hover:border-blue-400 inline-block text-blue text-blue-400 text-sm">
                     {{ __('twitter.forgot_password') }}?
                 </a>
@@ -61,5 +61,4 @@
         </div>
     </div>
 @stop
-</body>
-</html>
+

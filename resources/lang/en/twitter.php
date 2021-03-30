@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'home' => 'Home',
+    'home' => 'Home php',
     'login' => 'Login',
     'forgot_password' => 'Forgot Password?',
     'reset_password' => 'Reset Password',

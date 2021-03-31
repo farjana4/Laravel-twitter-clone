@@ -3,14 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Events\EmailUpdated;
+use App\Events\EmailUpdateRequested;
 use App\Events\PhoneNumberUpdated;
 use App\Events\UsernameUpdated;
 use App\Http\Requests\UpdateEmailRequest;
 use App\Http\Requests\UpdatePhoneNumberRequest;
 use App\Http\Requests\UpdateUsernameRequest;
+use App\Models\User;
 use App\Services\SettingsService;
 use Exception;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Crypt;
 
 class SettingsController extends Controller
 {
@@ -45,15 +48,44 @@ class SettingsController extends Controller
     public function updateEmail(UpdateEmailRequest $request): RedirectResponse
     {
         try {
-            $this->settingsService->updateAttribute('email', $request->input('email'));
-            event(new EmailUpdated());
+            /* @var User $user */
+            $user = auth()->user();
+            $email = $request->input('email');
 
-            $this->setSuccessNotification('Email updated Successfully');
+            if ($email !== $user->email) {
+                event(new EmailUpdateRequested($email));
+                $this->setSuccessNotification('Please check your new email address to update the email');
+            } else {
+                $this->setSuccessNotification('Email updated Successfully');
+            }
         } catch (Exception $exception) {
             $this->setErrorNotification($exception->getMessage());
         }
 
         return redirect()->back();
+    }
+
+    public function changeEmail(String $token): RedirectResponse
+    {
+        $tokenString = Crypt::decryptString($token);
+        $stringParts = explode('::', $tokenString);
+        $email = $stringParts[0];
+        $ttl = $stringParts[1];
+
+        if (time() > $ttl) {
+            $this->setErrorNotification('Try to update your email address again. Link expired.');
+        }
+
+        try {
+            $this->settingsService->updateAttribute('email', $email);
+            event(new EmailUpdated());
+
+            $this->setSuccessNotification('Email Address updated Successfully');
+        } catch (Exception $exception) {
+            $this->setErrorNotification($exception->getMessage());
+        }
+
+        return redirect()->route('settings');
     }
 
     public function updatePhoneNumber(UpdatePhoneNumberRequest $request): RedirectResponse

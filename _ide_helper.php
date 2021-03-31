@@ -930,8 +930,15 @@
                         return $instance->when($concrete);
         }
                     /**
+         * Returns true if the container can return an entry for the given identifier.
          * 
+         * Returns false otherwise.
+         * 
+         * `has($id)` returning true does not mean that `get($id)` will not throw an exception.
+         * It does however mean that `get($id)` will not throw a `NotFoundExceptionInterface`.
          *
+         * @param string $id Identifier of the entry to look for.
+         * @return bool 
          * @static 
          */ 
         public static function has($id)
@@ -1229,8 +1236,12 @@
                         return $instance->makeWith($abstract, $parameters);
         }
                     /**
-         * 
+         * Finds an entry of the container by its identifier and returns it.
          *
+         * @param string $id Identifier of the entry to look for.
+         * @throws NotFoundExceptionInterface  No entry was found for **this** identifier.
+         * @throws ContainerExceptionInterface Error while retrieving the entry.
+         * @return mixed Entry.
          * @static 
          */ 
         public static function get($id)
@@ -3194,8 +3205,14 @@
                         return $instance->many($keys);
         }
                     /**
-         * 
+         * Obtains multiple cache items by their unique keys.
          *
+         * @param \Psr\SimpleCache\iterable $keys A list of keys that can obtained in a single operation.
+         * @param mixed $default Default value to return for keys that do not exist.
+         * @return \Psr\SimpleCache\iterable A list of key => value pairs. Cache keys that do not exist or are stale will have $default as value.
+         * @throws \Psr\SimpleCache\InvalidArgumentException
+         *   MUST be thrown if $keys is neither an array nor a Traversable,
+         *   or if any of the $keys are not a legal value.
          * @static 
          */ 
         public static function getMultiple($keys, $default = null)
@@ -3231,8 +3248,16 @@
                         return $instance->put($key, $value, $ttl);
         }
                     /**
-         * 
+         * Persists data in the cache, uniquely referenced by a key with an optional expiration TTL time.
          *
+         * @param string $key The key of the item to store.
+         * @param mixed $value The value of the item to store, must be serializable.
+         * @param null|int|\DateInterval $ttl Optional. The TTL value of this item. If no value is sent and
+         *                                      the driver supports TTL then the library may set a default value
+         *                                      for it or let the driver take care of that.
+         * @return bool True on success and false on failure.
+         * @throws \Psr\SimpleCache\InvalidArgumentException
+         *   MUST be thrown if the $key string is not a legal value.
          * @static 
          */ 
         public static function set($key, $value, $ttl = null)
@@ -3254,8 +3279,16 @@
                         return $instance->putMany($values, $ttl);
         }
                     /**
-         * 
+         * Persists a set of key => value pairs in the cache, with an optional TTL.
          *
+         * @param \Psr\SimpleCache\iterable $values A list of key => value pairs for a multiple-set operation.
+         * @param null|int|\DateInterval $ttl Optional. The TTL value of this item. If no value is sent and
+         *                                       the driver supports TTL then the library may set a default value
+         *                                       for it or let the driver take care of that.
+         * @return bool True on success and false on failure.
+         * @throws \Psr\SimpleCache\InvalidArgumentException
+         *   MUST be thrown if $values is neither an array nor a Traversable,
+         *   or if any of the $values are not a legal value.
          * @static 
          */ 
         public static function setMultiple($values, $ttl = null)
@@ -3369,8 +3402,12 @@
                         return $instance->forget($key);
         }
                     /**
-         * 
+         * Delete an item from the cache by its unique key.
          *
+         * @param string $key The unique cache key of the item to delete.
+         * @return bool True if the item was successfully removed. False if there was an error.
+         * @throws \Psr\SimpleCache\InvalidArgumentException
+         *   MUST be thrown if the $key string is not a legal value.
          * @static 
          */ 
         public static function delete($key)
@@ -3379,8 +3416,13 @@
                         return $instance->delete($key);
         }
                     /**
-         * 
+         * Deletes multiple cache items in a single operation.
          *
+         * @param \Psr\SimpleCache\iterable $keys A list of string-based keys to be deleted.
+         * @return bool True if the items were successfully removed. False if there was an error.
+         * @throws \Psr\SimpleCache\InvalidArgumentException
+         *   MUST be thrown if $keys is neither an array nor a Traversable,
+         *   or if any of the $keys are not a legal value.
          * @static 
          */ 
         public static function deleteMultiple($keys)
@@ -3389,8 +3431,9 @@
                         return $instance->deleteMultiple($keys);
         }
                     /**
-         * 
+         * Wipes clean the entire cache's keys.
          *
+         * @return bool True on success and false on failure.
          * @static 
          */ 
         public static function clear()
@@ -12605,6 +12648,33 @@
             /**
      * 
      *
+     * @method static \Illuminate\Contracts\Filesystem\Filesystem assertExists(string|array $path)
+     * @method static \Illuminate\Contracts\Filesystem\Filesystem assertMissing(string|array $path)
+     * @method static array allDirectories(string|null $directory = null)
+     * @method static array allFiles(string|null $directory = null)
+     * @method static array directories(string|null $directory = null, bool $recursive = false)
+     * @method static array files(string|null $directory = null, bool $recursive = false)
+     * @method static bool append(string $path, string $data)
+     * @method static bool copy(string $from, string $to)
+     * @method static bool delete(string|array $paths)
+     * @method static bool deleteDirectory(string $directory)
+     * @method static bool exists(string $path)
+     * @method static bool makeDirectory(string $path)
+     * @method static bool move(string $from, string $to)
+     * @method static string path(string $path)
+     * @method static bool prepend(string $path, string $data)
+     * @method static bool put(string $path, string|resource $contents, mixed $options = [])
+     * @method static string|false putFile(string $path, \Illuminate\Http\File|\Illuminate\Http\UploadedFile|string $file, mixed $options = [])
+     * @method static string|false putFileAs(string $path, \Illuminate\Http\File|\Illuminate\Http\UploadedFile|string $file, string $name, mixed $options = [])
+     * @method static bool setVisibility(string $path, string $visibility)
+     * @method static bool writeStream(string $path, resource $resource, array $options = [])
+     * @method static int lastModified(string $path)
+     * @method static int size(string $path)
+     * @method static resource|null readStream(string $path)
+     * @method static string get(string $path)
+     * @method static string getVisibility(string $path)
+     * @method static string temporaryUrl(string $path, \DateTimeInterface $expiration, array $options = [])
+     * @method static string url(string $path)
      * @see \Illuminate\Filesystem\FilesystemManager
      */ 
         class Storage {
@@ -12612,7 +12682,7 @@
          * Get a filesystem instance.
          *
          * @param string|null $name
-         * @return \Illuminate\Filesystem\FilesystemAdapter 
+         * @return \Illuminate\Contracts\Filesystem\Filesystem 
          * @static 
          */ 
         public static function drive($name = null)
@@ -12624,7 +12694,7 @@
          * Get a filesystem instance.
          *
          * @param string|null $name
-         * @return \Illuminate\Filesystem\FilesystemAdapter 
+         * @return \Illuminate\Contracts\Filesystem\Filesystem 
          * @static 
          */ 
         public static function disk($name = null)
@@ -12635,7 +12705,7 @@
                     /**
          * Get a default cloud filesystem instance.
          *
-         * @return \Illuminate\Filesystem\FilesystemAdapter 
+         * @return \Illuminate\Contracts\Filesystem\Filesystem 
          * @static 
          */ 
         public static function cloud()
@@ -12647,7 +12717,7 @@
          * Create an instance of the local driver.
          *
          * @param array $config
-         * @return \Illuminate\Filesystem\FilesystemAdapter 
+         * @return \Illuminate\Contracts\Filesystem\Filesystem 
          * @static 
          */ 
         public static function createLocalDriver($config)
@@ -12659,7 +12729,7 @@
          * Create an instance of the ftp driver.
          *
          * @param array $config
-         * @return \Illuminate\Filesystem\FilesystemAdapter 
+         * @return \Illuminate\Contracts\Filesystem\Filesystem 
          * @static 
          */ 
         public static function createFtpDriver($config)
@@ -12671,7 +12741,7 @@
          * Create an instance of the sftp driver.
          *
          * @param array $config
-         * @return \Illuminate\Filesystem\FilesystemAdapter 
+         * @return \Illuminate\Contracts\Filesystem\Filesystem 
          * @static 
          */ 
         public static function createSftpDriver($config)
@@ -12762,449 +12832,6 @@
         {
                         /** @var \Illuminate\Filesystem\FilesystemManager $instance */
                         return $instance->extend($driver, $callback);
-        }
-                    /**
-         * Assert that the given file exists.
-         *
-         * @param string|array $path
-         * @param string|null $content
-         * @return \Illuminate\Filesystem\FilesystemAdapter 
-         * @static 
-         */ 
-        public static function assertExists($path, $content = null)
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->assertExists($path, $content);
-        }
-                    /**
-         * Assert that the given file does not exist.
-         *
-         * @param string|array $path
-         * @return \Illuminate\Filesystem\FilesystemAdapter 
-         * @static 
-         */ 
-        public static function assertMissing($path)
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->assertMissing($path);
-        }
-                    /**
-         * Determine if a file exists.
-         *
-         * @param string $path
-         * @return bool 
-         * @static 
-         */ 
-        public static function exists($path)
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->exists($path);
-        }
-                    /**
-         * Determine if a file or directory is missing.
-         *
-         * @param string $path
-         * @return bool 
-         * @static 
-         */ 
-        public static function missing($path)
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->missing($path);
-        }
-                    /**
-         * Get the full path for the file at the given "short" path.
-         *
-         * @param string $path
-         * @return string 
-         * @static 
-         */ 
-        public static function path($path)
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->path($path);
-        }
-                    /**
-         * Get the contents of a file.
-         *
-         * @param string $path
-         * @return string 
-         * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
-         * @static 
-         */ 
-        public static function get($path)
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->get($path);
-        }
-                    /**
-         * Create a streamed response for a given file.
-         *
-         * @param string $path
-         * @param string|null $name
-         * @param array|null $headers
-         * @param string|null $disposition
-         * @return \Symfony\Component\HttpFoundation\StreamedResponse 
-         * @static 
-         */ 
-        public static function response($path, $name = null, $headers = [], $disposition = 'inline')
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->response($path, $name, $headers, $disposition);
-        }
-                    /**
-         * Create a streamed download response for a given file.
-         *
-         * @param string $path
-         * @param string|null $name
-         * @param array|null $headers
-         * @return \Symfony\Component\HttpFoundation\StreamedResponse 
-         * @static 
-         */ 
-        public static function download($path, $name = null, $headers = [])
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->download($path, $name, $headers);
-        }
-                    /**
-         * Write the contents of a file.
-         *
-         * @param string $path
-         * @param string|resource $contents
-         * @param mixed $options
-         * @return bool 
-         * @static 
-         */ 
-        public static function put($path, $contents, $options = [])
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->put($path, $contents, $options);
-        }
-                    /**
-         * Store the uploaded file on the disk.
-         *
-         * @param string $path
-         * @param \Illuminate\Http\File|\Illuminate\Http\UploadedFile|string $file
-         * @param mixed $options
-         * @return string|false 
-         * @static 
-         */ 
-        public static function putFile($path, $file, $options = [])
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->putFile($path, $file, $options);
-        }
-                    /**
-         * Store the uploaded file on the disk with a given name.
-         *
-         * @param string $path
-         * @param \Illuminate\Http\File|\Illuminate\Http\UploadedFile|string $file
-         * @param string $name
-         * @param mixed $options
-         * @return string|false 
-         * @static 
-         */ 
-        public static function putFileAs($path, $file, $name, $options = [])
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->putFileAs($path, $file, $name, $options);
-        }
-                    /**
-         * Get the visibility for the given path.
-         *
-         * @param string $path
-         * @return string 
-         * @static 
-         */ 
-        public static function getVisibility($path)
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->getVisibility($path);
-        }
-                    /**
-         * Set the visibility for the given path.
-         *
-         * @param string $path
-         * @param string $visibility
-         * @return bool 
-         * @static 
-         */ 
-        public static function setVisibility($path, $visibility)
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->setVisibility($path, $visibility);
-        }
-                    /**
-         * Prepend to a file.
-         *
-         * @param string $path
-         * @param string $data
-         * @param string $separator
-         * @return bool 
-         * @static 
-         */ 
-        public static function prepend($path, $data, $separator = '
-')
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->prepend($path, $data, $separator);
-        }
-                    /**
-         * Append to a file.
-         *
-         * @param string $path
-         * @param string $data
-         * @param string $separator
-         * @return bool 
-         * @static 
-         */ 
-        public static function append($path, $data, $separator = '
-')
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->append($path, $data, $separator);
-        }
-                    /**
-         * Delete the file at a given path.
-         *
-         * @param string|array $paths
-         * @return bool 
-         * @static 
-         */ 
-        public static function delete($paths)
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->delete($paths);
-        }
-                    /**
-         * Copy a file to a new location.
-         *
-         * @param string $from
-         * @param string $to
-         * @return bool 
-         * @static 
-         */ 
-        public static function copy($from, $to)
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->copy($from, $to);
-        }
-                    /**
-         * Move a file to a new location.
-         *
-         * @param string $from
-         * @param string $to
-         * @return bool 
-         * @static 
-         */ 
-        public static function move($from, $to)
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->move($from, $to);
-        }
-                    /**
-         * Get the file size of a given file.
-         *
-         * @param string $path
-         * @return int 
-         * @static 
-         */ 
-        public static function size($path)
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->size($path);
-        }
-                    /**
-         * Get the mime-type of a given file.
-         *
-         * @param string $path
-         * @return string|false 
-         * @static 
-         */ 
-        public static function mimeType($path)
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->mimeType($path);
-        }
-                    /**
-         * Get the file's last modification time.
-         *
-         * @param string $path
-         * @return int 
-         * @static 
-         */ 
-        public static function lastModified($path)
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->lastModified($path);
-        }
-                    /**
-         * Get the URL for the file at the given path.
-         *
-         * @param string $path
-         * @return string 
-         * @throws \RuntimeException
-         * @static 
-         */ 
-        public static function url($path)
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->url($path);
-        }
-                    /**
-         * Get a resource to read the file.
-         *
-         * @param string $path
-         * @return resource|null The path resource or null on failure.
-         * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
-         * @static 
-         */ 
-        public static function readStream($path)
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->readStream($path);
-        }
-                    /**
-         * Write a new file using a stream.
-         *
-         * @param string $path
-         * @param resource $resource
-         * @param array $options
-         * @return bool 
-         * @throws \InvalidArgumentException If $resource is not a file handle.
-         * @throws \Illuminate\Contracts\Filesystem\FileExistsException
-         * @static 
-         */ 
-        public static function writeStream($path, $resource, $options = [])
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->writeStream($path, $resource, $options);
-        }
-                    /**
-         * Get a temporary URL for the file at the given path.
-         *
-         * @param string $path
-         * @param \DateTimeInterface $expiration
-         * @param array $options
-         * @return string 
-         * @throws \RuntimeException
-         * @static 
-         */ 
-        public static function temporaryUrl($path, $expiration, $options = [])
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->temporaryUrl($path, $expiration, $options);
-        }
-                    /**
-         * Get a temporary URL for the file at the given path.
-         *
-         * @param \League\Flysystem\AwsS3v3\AwsS3Adapter $adapter
-         * @param string $path
-         * @param \DateTimeInterface $expiration
-         * @param array $options
-         * @return string 
-         * @static 
-         */ 
-        public static function getAwsTemporaryUrl($adapter, $path, $expiration, $options)
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->getAwsTemporaryUrl($adapter, $path, $expiration, $options);
-        }
-                    /**
-         * Get an array of all files in a directory.
-         *
-         * @param string|null $directory
-         * @param bool $recursive
-         * @return array 
-         * @static 
-         */ 
-        public static function files($directory = null, $recursive = false)
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->files($directory, $recursive);
-        }
-                    /**
-         * Get all of the files from the given directory (recursive).
-         *
-         * @param string|null $directory
-         * @return array 
-         * @static 
-         */ 
-        public static function allFiles($directory = null)
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->allFiles($directory);
-        }
-                    /**
-         * Get all of the directories within a given directory.
-         *
-         * @param string|null $directory
-         * @param bool $recursive
-         * @return array 
-         * @static 
-         */ 
-        public static function directories($directory = null, $recursive = false)
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->directories($directory, $recursive);
-        }
-                    /**
-         * Get all (recursive) of the directories within a given directory.
-         *
-         * @param string|null $directory
-         * @return array 
-         * @static 
-         */ 
-        public static function allDirectories($directory = null)
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->allDirectories($directory);
-        }
-                    /**
-         * Create a directory.
-         *
-         * @param string $path
-         * @return bool 
-         * @static 
-         */ 
-        public static function makeDirectory($path)
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->makeDirectory($path);
-        }
-                    /**
-         * Recursively delete a directory.
-         *
-         * @param string $directory
-         * @return bool 
-         * @static 
-         */ 
-        public static function deleteDirectory($directory)
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->deleteDirectory($directory);
-        }
-                    /**
-         * Flush the Flysystem cache.
-         *
-         * @return void 
-         * @static 
-         */ 
-        public static function flushCache()
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        $instance->flushCache();
-        }
-                    /**
-         * Get the Flysystem driver.
-         *
-         * @return \League\Flysystem\FilesystemInterface 
-         * @static 
-         */ 
-        public static function getDriver()
-        {
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $instance */
-                        return $instance->getDriver();
         }
          
     }
@@ -18779,394 +18406,6 @@ namespace  {
 }
 
 
-namespace {
-    
-
-use Illuminate\Contracts\Support\DeferringDisplayableValue;
-use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Env;
-use Illuminate\Support\HigherOrderTapProxy;
-use Illuminate\Support\Optional;
-
-if (! function_exists('append_config')) {
-    /**
-     * Assign high numeric IDs to a config item to force appending.
-     *
-     * @param  array  $array
-     * @return array
-     */
-    function append_config(array $array)
-    {
-        $start = 9999;
-
-        foreach ($array as $key => $value) {
-            if (is_numeric($key)) {
-                $start++;
-
-                $array[$start] = Arr::pull($array, $key);
-            }
-        }
-
-        return $array;
-    }
-}
-
-if (! function_exists('blank')) {
-    /**
-     * Determine if the given value is "blank".
-     *
-     * @param  mixed  $value
-     * @return bool
-     */
-    function blank($value)
-    {
-        if (is_null($value)) {
-            return true;
-        }
-
-        if (is_string($value)) {
-            return trim($value) === '';
-        }
-
-        if (is_numeric($value) || is_bool($value)) {
-            return false;
-        }
-
-        if ($value instanceof Countable) {
-            return count($value) === 0;
-        }
-
-        return empty($value);
-    }
-}
-
-if (! function_exists('class_basename')) {
-    /**
-     * Get the class "basename" of the given object / class.
-     *
-     * @param  string|object  $class
-     * @return string
-     */
-    function class_basename($class)
-    {
-        $class = is_object($class) ? get_class($class) : $class;
-
-        return basename(str_replace('\\', '/', $class));
-    }
-}
-
-if (! function_exists('class_uses_recursive')) {
-    /**
-     * Returns all traits used by a class, its parent classes and trait of their traits.
-     *
-     * @param  object|string  $class
-     * @return array
-     */
-    function class_uses_recursive($class)
-    {
-        if (is_object($class)) {
-            $class = get_class($class);
-        }
-
-        $results = [];
-
-        foreach (array_reverse(class_parents($class)) + [$class => $class] as $class) {
-            $results += trait_uses_recursive($class);
-        }
-
-        return array_unique($results);
-    }
-}
-
-if (! function_exists('e')) {
-    /**
-     * Encode HTML special characters in a string.
-     *
-     * @param  \Illuminate\Contracts\Support\DeferringDisplayableValue|\Illuminate\Contracts\Support\Htmlable|string|null  $value
-     * @param  bool  $doubleEncode
-     * @return string
-     */
-    function e($value, $doubleEncode = true)
-    {
-        if ($value instanceof DeferringDisplayableValue) {
-            $value = $value->resolveDisplayableValue();
-        }
-
-        if ($value instanceof Htmlable) {
-            return $value->toHtml();
-        }
-
-        return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8', $doubleEncode);
-    }
-}
-
-if (! function_exists('env')) {
-    /**
-     * Gets the value of an environment variable.
-     *
-     * @param  string  $key
-     * @param  mixed  $default
-     * @return mixed
-     */
-    function env($key, $default = null)
-    {
-        return Env::get($key, $default);
-    }
-}
-
-if (! function_exists('filled')) {
-    /**
-     * Determine if a value is "filled".
-     *
-     * @param  mixed  $value
-     * @return bool
-     */
-    function filled($value)
-    {
-        return ! blank($value);
-    }
-}
-
-if (! function_exists('object_get')) {
-    /**
-     * Get an item from an object using "dot" notation.
-     *
-     * @param  object  $object
-     * @param  string|null  $key
-     * @param  mixed  $default
-     * @return mixed
-     */
-    function object_get($object, $key, $default = null)
-    {
-        if (is_null($key) || trim($key) == '') {
-            return $object;
-        }
-
-        foreach (explode('.', $key) as $segment) {
-            if (! is_object($object) || ! isset($object->{$segment})) {
-                return value($default);
-            }
-
-            $object = $object->{$segment};
-        }
-
-        return $object;
-    }
-}
-
-if (! function_exists('optional')) {
-    /**
-     * Provide access to optional objects.
-     *
-     * @param  mixed  $value
-     * @param  callable|null  $callback
-     * @return mixed
-     */
-    function optional($value = null, callable $callback = null)
-    {
-        if (is_null($callback)) {
-            return new Optional($value);
-        } elseif (! is_null($value)) {
-            return $callback($value);
-        }
-    }
-}
-
-if (! function_exists('preg_replace_array')) {
-    /**
-     * Replace a given pattern with each value in the array in sequentially.
-     *
-     * @param  string  $pattern
-     * @param  array  $replacements
-     * @param  string  $subject
-     * @return string
-     */
-    function preg_replace_array($pattern, array $replacements, $subject)
-    {
-        return preg_replace_callback($pattern, function () use (&$replacements) {
-            foreach ($replacements as $key => $value) {
-                return array_shift($replacements);
-            }
-        }, $subject);
-    }
-}
-
-if (! function_exists('retry')) {
-    /**
-     * Retry an operation a given number of times.
-     *
-     * @param  int  $times
-     * @param  callable  $callback
-     * @param  int  $sleep
-     * @param  callable|null  $when
-     * @return mixed
-     *
-     * @throws \Exception
-     */
-    function retry($times, callable $callback, $sleep = 0, $when = null)
-    {
-        $attempts = 0;
-
-        beginning:
-        $attempts++;
-        $times--;
-
-        try {
-            return $callback($attempts);
-        } catch (Exception $e) {
-            if ($times < 1 || ($when && ! $when($e))) {
-                throw $e;
-            }
-
-            if ($sleep) {
-                usleep($sleep * 1000);
-            }
-
-            goto beginning;
-        }
-    }
-}
-
-if (! function_exists('tap')) {
-    /**
-     * Call the given Closure with the given value then return the value.
-     *
-     * @param  mixed  $value
-     * @param  callable|null  $callback
-     * @return mixed
-     */
-    function tap($value, $callback = null)
-    {
-        if (is_null($callback)) {
-            return new HigherOrderTapProxy($value);
-        }
-
-        $callback($value);
-
-        return $value;
-    }
-}
-
-if (! function_exists('throw_if')) {
-    /**
-     * Throw the given exception if the given condition is true.
-     *
-     * @param  mixed  $condition
-     * @param  \Throwable|string  $exception
-     * @param  array  ...$parameters
-     * @return mixed
-     *
-     * @throws \Throwable
-     */
-    function throw_if($condition, $exception = 'RuntimeException', ...$parameters)
-    {
-        if ($condition) {
-            if (is_string($exception) && class_exists($exception)) {
-                $exception = new $exception(...$parameters);
-            }
-
-            throw is_string($exception) ? new RuntimeException($exception) : $exception;
-        }
-
-        return $condition;
-    }
-}
-
-if (! function_exists('throw_unless')) {
-    /**
-     * Throw the given exception unless the given condition is true.
-     *
-     * @param  mixed  $condition
-     * @param  \Throwable|string  $exception
-     * @param  array  ...$parameters
-     * @return mixed
-     *
-     * @throws \Throwable
-     */
-    function throw_unless($condition, $exception = 'RuntimeException', ...$parameters)
-    {
-        if (! $condition) {
-            if (is_string($exception) && class_exists($exception)) {
-                $exception = new $exception(...$parameters);
-            }
-
-            throw is_string($exception) ? new RuntimeException($exception) : $exception;
-        }
-
-        return $condition;
-    }
-}
-
-if (! function_exists('trait_uses_recursive')) {
-    /**
-     * Returns all traits used by a trait and its traits.
-     *
-     * @param  string  $trait
-     * @return array
-     */
-    function trait_uses_recursive($trait)
-    {
-        $traits = class_uses($trait) ?: [];
-
-        foreach ($traits as $trait) {
-            $traits += trait_uses_recursive($trait);
-        }
-
-        return $traits;
-    }
-}
-
-if (! function_exists('transform')) {
-    /**
-     * Transform the given value if it is present.
-     *
-     * @param  mixed  $value
-     * @param  callable  $callback
-     * @param  mixed  $default
-     * @return mixed|null
-     */
-    function transform($value, callable $callback, $default = null)
-    {
-        if (filled($value)) {
-            return $callback($value);
-        }
-
-        if (is_callable($default)) {
-            return $default($value);
-        }
-
-        return $default;
-    }
-}
-
-if (! function_exists('windows_os')) {
-    /**
-     * Determine whether the current environment is Windows based.
-     *
-     * @return bool
-     */
-    function windows_os()
-    {
-        return PHP_OS_FAMILY === 'Windows';
-    }
-}
-
-if (! function_exists('with')) {
-    /**
-     * Return the given value, optionally passed through the given callback.
-     *
-     * @param  mixed  $value
-     * @param  callable|null  $callback
-     * @return mixed
-     */
-    function with($value, callable $callback = null)
-    {
-        return is_null($callback) ? $value : $callback($value);
-    }
-}
- 
-}
 
 namespace Illuminate\Support {
     /**

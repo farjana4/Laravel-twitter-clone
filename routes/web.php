@@ -59,6 +59,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/settings/email', [SettingsController::class, 'updateEmail'])->name('settings.email');
     Route::post('/settings/phone', [SettingsController::class, 'updatePhoneNumber'])->name('settings.phone');
 
+    Route::get('/settings/email/{toden}', [SettingsController::class, 'changeEmail'])->name('settings.email.change');
+
     //Translates(Farjana Testing)
     Route::get('/translates', [TranslatesController::class, 'showTranslatesForm'])->name('translates');
 });

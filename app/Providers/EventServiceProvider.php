@@ -6,8 +6,10 @@ use App\Events\EmailUpdated;
 use App\Events\EmailUpdateRequested;
 use App\Events\LoggedIn;
 use App\Events\PhoneNumberUpdated;
+use App\Events\PhoneNumberUpdateRequested;
 use App\Events\UsernameUpdated;
 use App\Listeners\SendChangeEmail;
+use App\Listeners\SendOtpSMS;
 use App\Notifications\SendEmailVerificationNotification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -38,6 +40,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         EmailUpdateRequested::class => [
             SendChangeEmail::class,
+        ],
+        PhoneNumberUpdateRequested::class => [
+            SendOtpSMS::class,
         ],
     ];
 

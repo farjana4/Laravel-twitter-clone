@@ -57,9 +57,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/settings', [SettingsController::class, 'showSettingsForm'])->name('settings');
     Route::post('/settings/username', [SettingsController::class, 'updateUsername'])->name('settings.username');
     Route::post('/settings/email', [SettingsController::class, 'updateEmail'])->name('settings.email');
-    Route::post('/settings/phone', [SettingsController::class, 'updatePhoneNumber'])->name('settings.phone');
 
-    Route::get('/settings/email/{toden}', [SettingsController::class, 'changeEmail'])->name('settings.email.change');
+    Route::post('/settings/phone', [SettingsController::class, 'sendOtp'])->name('settings.phone');
+    Route::get('/settings/phone/otp/{token}', [SettingsController::class, 'showOtpForm'])->name('settings.phone.otp');
+    Route::post('/settings/phone/otp/{token}', [SettingsController::class, 'updatePhoneNumber']);
+
+    Route::get('/settings/email/{token}', [SettingsController::class, 'changeEmail'])->name('settings.email.change');
 
     //Translates(Farjana Testing)
     Route::get('/translates', [TranslatesController::class, 'showTranslatesForm'])->name('translates');

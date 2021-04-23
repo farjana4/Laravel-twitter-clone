@@ -9,7 +9,15 @@ class HomeController extends Controller
 {
     public function showHome()
     {
-        return view('home');
+        $data = [];
+        //business logic
+        //$today_date = now()->format('d, M Y');
+        //$data['today_date'] = strtotime(date('Y-m-d 01:00:00'));
+        $data['currentDateTime'] = strtotime(date('Y-m-d h:i:s'));
+        $data['todayDateOneAm'] = strtotime(date('Y-m-d 01:00:00'));
+        $data['todayDateOneThirtyAm'] = strtotime(date('Y-m-d 01:30:00'));
+
+        return view('home', $data);
     }
 
     public function setLocale(string $locale): RedirectResponse

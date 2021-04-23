@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Events\EmailUpdated;
 use App\Events\EmailUpdateRequested;
 use App\Events\PhoneNumberUpdated;
+use App\Events\PhoneNumberUpdateRequested;
 use App\Events\UsernameUpdated;
+use App\Http\Requests\SubmitOtpRequest;
 use App\Http\Requests\UpdateEmailRequest;
 use App\Http\Requests\UpdatePhoneNumberRequest;
 use App\Http\Requests\UpdateUsernameRequest;
@@ -14,6 +16,7 @@ use App\Services\SettingsService;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Crypt;
+use Tzsk\Otp\Facades\Otp;
 
 class SettingsController extends Controller
 {
@@ -88,17 +91,73 @@ class SettingsController extends Controller
         return redirect()->route('settings');
     }
 
-    public function updatePhoneNumber(UpdatePhoneNumberRequest $request): RedirectResponse
+    public function sendOtp(UpdatePhoneNumberRequest $request): RedirectResponse
     {
         try {
+            /* @var User $user */
+            $user = auth()->user();
+            $phoneNumber = $request->input('phone_number');
+
+            if ($phoneNumber !== $user->phone_number) {
+                $token = Crypt::encryptString($phoneNumber);
+                $otp = Otp::generate(sha1($user->email));
+
+                event(new PhoneNumberUpdateRequested($phoneNumber, $otp));
+
+                $this->setSuccessNotification('Please check your phone number for the OTP');
+
+                return redirect()->route('settings.phone.otp', $token);
+            } else {
+                $this->setSuccessNotification('Phone number updated Successfully');
+            }
+        } catch (Exception $exception) {
+            $this->setErrorNotification($exception->getMessage());
+        }
+
+        return redirect()->back();
+
+        //update phone number without OTP
+        /*try {
             $this->settingsService->updateAttribute('phone_number', $request->input('phone_number'));
-            event(new PhoneNumberUpdated());
+            event(new PhoneNumberUpdateRequested($phoneNumber));
 
             $this->setSuccessNotification('Phone number updated Successfully');
         } catch (Exception $exception) {
             $this->setErrorNotification($exception->getMessage());
         }
 
-        return redirect()->back();
+        return redirect()->back();*/
+    }
+
+    public function showOtpForm(string $token)
+    {
+        $data['user'] = auth()->user();
+        $data['token'] = $token;
+
+        return view('settings.otp', $data);
+    }
+
+    public function updatePhoneNumber(string $token, SubmitOtpRequest $request): RedirectResponse
+    {
+        /* @var User $user */
+        $user = auth()->user();
+        //if(Otp::check($request->input('otp'), sha1($user->phone_number)) == false){
+        if (Otp::check($request->input('otp'), sha1($user->email)) == false) {
+            $this->setErrorNotification('Invalid or wrong OTP');
+
+            return redirect()->back();
+            //return redirect()->route('settings');
+        }
+        try {
+            $phoneNumber = Crypt::decryptString($token);
+            $this->settingsService->updateAttribute('phone_number', $phoneNumber);
+            event(new PhoneNumberUpdated());
+
+            $this->setSuccessNotification('Phone Number updated Successfully');
+        } catch (Exception $exception) {
+            $this->setErrorNotification($exception->getMessage());
+        }
+
+        return redirect()->route('settings');
     }
 }
